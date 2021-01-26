@@ -1,68 +1,85 @@
-\documentclass[a4paper]{report}
+\documentclass[fleqn, a4paper]{report}
 
-%% Language and font encodings
+%% Language and font and usefull packages
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
-
 \usepackage{booktabs}
 \usepackage{tabu}
 \usepackage[T1]{fontenc}
 \usepackage{bm}
 \usepackage{setspace}
-
-%% Sets page size and margins
-\usepackage[a4paper,top=3cm,bottom=2cm,left=2cm,right=2cm,marginparwidth=1.75cm]{geometry}
-
-%% Useful packages
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{titlepic}
 %\usepackage{apacite}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[a4paper,top=1.5cm,bottom=1.5cm,left=1cm,right=1cm,marginparwidth=1.75cm]{geometry}
 
+%\graphicspath{ {./images} }
 \title{Assignment 1 - Report on a Scientific Paper}
 \author{
-Theodoros Ladas
+Theodoros Ladas - s2124289 
 \footnote{University of Edinburgh s2124289@ed.ac.uk}
-} 
+}
+\titlepic{\includegraphics[width=12.528cm,height=3cm]{./images/edinburgh.png}} 
 \date{January 10, 2021}
+
 
 \onehalfspacing
 \begin{document}
 \maketitle
 
-
-\section*{1. Introduction}
+\section*{1. Introduction and Aim}
 The article summarized  \cite{rodriguez2017assessing} focuses on the S\&P500 index and it's subsectors in order to create a novel approach to estimate systemic and idiosyncratic risks. The focus of the paper is in the tail of the distribution, that is rare and extreme events. In more detail it measures the time of appearance of extreme losses in each subsector using a superposition of two Poisson processes, one for systemic and one for idiosyncratic risk. S\&P500 is an index for the stock market that consists of a weighted-average of 500 companies in 10 different sectors of the economy. In addition to the overall index, Standard\&Poor, the company that publishes the index, also publish an index for each of the 10 subsectors. The most established tool for modeling the idiosyncratic risk is the Capital Asset Pricing Model (CAPM). In this model, agents are trying to maximize their expected utility of a portfolio, which is a function of expected return on investments. The parameters of the model are estimated using linear regression. The problem with CAPM is that is too naive, as it assumes a Gaussian deviations on the behavior of the agents from the model, something that is proven to be wrong in every major crisis.
 
 The Poisson process, a continuous time version of the Bernoulli Process, has an intensity parameter $\lambda$, where $E[a,b] = \lambda(b-a)$ is the expected number of arrivals during the interval $(a,b), ~b>a$. That intensity parameter is a function of the subsectors of the S\&P500 and in order to capture the change in the risk structure over time a Dirichlet process is being used. Finally, the Dirichlet Process is a probabilistic model over a number of clusters with (in the general form) concentration parameter $\alpha$, and base distribution $G$. The parameter $\alpha$ controls how similar the distribution $G$ is after passing through the Dirichlet process. The model of the paper, lifts the Gaussian assumption of the CAPM and the focus of the analysis is in description and explanation of the structure of systemic and idiosyncratic risk, not only prediction.
-\section*{2. Model, Simulation and Prior Eliciation}
+\section*{2. Method}
 
 \subsection*{2.1 Model}
+The model focuses on the negative log return for the ten sectors of the S\&P500 indexes. More specifically, 
+\begin{equation}
+x_{i,j} = -100~\log(\frac{S_{i,j}}{S_{i-1,j}})
+\end{equation}
+where $S_{i,j}$ is the value of the index for sector $j$ at time $i$. For risk management purposes we are interested in large $x_{i,j}$ values as these indicate big drops in the price. This is further analyzed for each sector as superposition of Poisson process with intensity function of 
+\begin{equation}
+\Lambda_j(t) = \Lambda_0^*(t) + \Lambda_j^*(t)
+\end{equation}
+where $\Lambda_0^*(t)$, shows the systemic risk intensity function and $\Lambda_j^*(t)$ the idiosyncratic one for each sector $j$. Equation (2) can be written as $\Lambda_j^*(t) = \gamma_j^*F_j^*(t)$ where $\gamma_j^* = \Lambda_j^*(T)$ and $F_j^*(t)$ is a distribution of exceedance over time $[0,T]$ and it's mathematically defined as $F_j^* = {\Lambda_j^*(t)}{\Lambda_j^*(T)}$. Following that with a bit of algebra we can write Equation (2) as:
+\begin{equation}
+\Lambda_j(t) = \gamma_jF_j(t) = [\gamma_o^* + \gamma_j^*][\frac{\gamma_0^*}{\gamma_0^* +\gamma_j^*} + \frac{\gamma_j^*}{\gamma_0^* +\gamma_j^*}F_j^*(t)]
+\end{equation}
+Within each sector the exceedance rate $\gamma_j$ is the sum of the systematic and idiosyncratic rates
+Sector specific distribution $F_j$ is a mixture of the systemic and idiosyncratic distribution functions.
+If we write: $\epsilon_j=\frac{\gamma_0^*}{\gamma_0^* +\gamma_j^*}$, this represents the proportion of exceedance in sector $j$  that are associated with the systematic component which is highly interpretable. The density function $f_0^*$ and $f_1^*, ..., f_J^*$ are coming from a Dirichlet process $f_j^*(t) = \int\psi(t|\mu, \tau)dG_j^*(\mu)$, where $\psi(t|\mu, \tau)$ is the kernel density models as a Beta distribution on $[0,T]$ and $G_j^*(\mu)$ is the discrete mixing distribution. Finally the intensity functions $\lambda_0^* \lambda_1^*, ..., \lambda_J^*$ are specified with rate parameters $\gamma_0^*, \gamma_1^*,...,\gamma_j^*$ that come from a Gamma prior. This is crusial as it allows to formulate a test for the precense of idiosyncratic risks in a sector. 
 
+\subsection*{2.2 MCMC and Hyperparameter Tuning}
+The full model under the above assumptions for the prior and the Poisson Dirichlet process is 
+\begin{align*}
+& p(\{\gamma_j^*\},\{\nu_{j,l}\},\{\mu_{j,l}\},\tau,\{\alpha_j\}, \pi|\text{data})\propto 
+\\
+& \prod_{j=1}^J(\gamma_0^* + \gamma_j^*)^{n_j}\exp\{-(\gamma_0^* + \gamma_j^*)\}
+\times \prod_{j=1}^J\prod_{k=1}^{n_j}(\frac{\gamma_0^*}{\gamma_0^*+\gamma_j^*}\sum\{\nu_{0,l}\prod_{s<l}(1-\nu_{0,s})\}\psi(t_{j,k}|\mu_{0,l},\tau)) +
+\\  
+&\frac{\gamma_j^*}{\gamma_0^*+\gamma_j^*}\sum\{\nu_{j,l}\prod_{s<l}(1-\nu_{j,s})\}\psi(t_{j,k}|\mu_{j,l},\tau)
+\times p(\pi)p(\tau)p(\gamma_0^*)\prod_j p(\gamma_j^*|\pi) \prod_j \prod_l h(\mu_{j,l}Beta(\nu_{j,l}|1,a_j)\prod_jp(a_j)
+\end{align*}
 
-\subsection*{2.2 MCMC}
+In order to draw inference from the posterior, a blocked Gibbs sampling model was formed.
 
+All the hyperparameters of the model and all the priors have to be tuned, in order to make sure that they will not skew the results and dominate the posterior. For this step a mixture of historical data and information from experts was used to elicit the hyperparameters. More specifically the $\gamma_0^*, \gamma_1^*,...,\gamma_{10}^*$ which are the total number of exceedance in each sector, have been modeled for each sector $j$ by the assumption of $E[\gamma_0^*+\gamma_j^*]$ being normally distributed with mean and variance estimates coming from historic averages of the market. Similarly the $f_0^*, f_1^*, ..., f_J^*$, which are the density function, are being modeled with the precision parameter $\alpha_0,\alpha_1,...,\alpha_J$ as a rough estimate of the frequency at which distress periods arise per sector and scale parameter $\tau$ which represent the length of the distress period in the sector, again as a historical average. In the absence of these historical data, the authors highlight that a Uniform improper prior should be selected, because of its range over the full support of the hyperparameters.
 
-\subsection*{2.3 Hyperparameter Elicitatoin}
-
-
-
-
-\section*{3. Analysis of US market}
-
+\section*{3. Real life analysis}
 
 \subsection*{3.1 General information}
+The algorithm was tested on real world data from the U.S. equity market from January 1, 2000 to December 31, 2011 from Bloomberg's financial services, and the upper threshold that was selected was $u=2\%$. That $2\%$ meant that the sample size for the sectors was ranging from 85 datapoints up to 387 times where the threshold was exceeded. The threshold, along with all the other priors mathematically specified in the previous paragraph have been cross-validated without significant quantitative differences in the end result. The MCMC algorith had an effective sample size of $3000$ with a burn in period of $20000$ and a thinning parameter of 50 iterations. There was no lack of convergence evident, which was monitored with four independent chains on trace plots according to the methodology of Gelman and Rubin. The other priors and hyperparameters where calculated by historical averages. 
 
-
-\subsection*{3.2 Model validation}
-
-
-\subsection*{3.3 Prior sensitivity analysis}
-
+\subsection*{3.2 Model validation and sensitivity analysis}
+The model was validated with two state of the art methods, out-of-sample validation and in sample goodness of fit. For the first method the dataset was split into the training set which was 80\% of the total sample size and the training set, consisting of the rest. The authors also used k-fold cross validation with $k=10$ a typical hyperparameter for this type of validation. With this technique the results are more robust given the small sample size available in some subsectors. Secondly, in sample goodness of fit was monitored with quantile quantile plot and the fit appeared acceptable in most sectors, however some outliers where observed. Finally the authors also conducted a sensitivity analysis on the priors. More specifically they tested $\tau~$ $\alpha_0,...,\alpha_{10}, \gamma_0^*~$ $\gamma_1^*,...,\gamma_{10}^*~$ and $\pi$ with various values that had no significant impact on the posterior inference of the model.
 
 \section*{4. Conclusion}
 The model produced by the authors has a number of advantages over previous models. First of all it has a non-parametric nature. Secondly, it focuses on the extreme returns rather than the average returns. This is interesting because in times where everything goes as expected, the models of returns are of little importance compared to turbulent times such as the dot com bubble burst or the financial crisis of 2007–2008. Thirdly, because of its non-parametric nature and the Poisson Dirichlet process the model is highly interpretable on all of it's components. Finally, the model can be extended to the debt market with minimal adjustments, even though the analysis of it was made using data from the equity market in the U.S.
+
 \bibliographystyle{plain}
 \bibliography{assignment_1_references.bib}
 
