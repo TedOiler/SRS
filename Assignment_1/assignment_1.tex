@@ -1,0 +1,93 @@
+\documentclass[a4paper]{report}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+
+\usepackage{booktabs}
+\usepackage{tabu}
+\usepackage[T1]{fontenc}
+\usepackage{bm}
+\usepackage{setspace}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=2cm,right=2cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+%\usepackage{apacite}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Assignment 1 - Report on a Scientific Paper}
+\author{
+Theodoros Ladas
+\footnote{University of Edinburgh s2124289@ed.ac.uk}
+} 
+\date{January 10, 2021}
+
+\onehalfspacing
+\begin{document}
+\maketitle
+
+
+\section*{1. Introduction}
+The article summarized  \cite{rodriguez2017assessing} focuses on the S\&P500 index and it's subsectors in order to create a novel approach to estimate systemic and idiosyncratic risks. The focus of the paper is in the tail of the distribution, that is rare and extreme events. In more detail it measures the time of appearance of extreme losses in each subsector using a superposition of two Poisson processes, one for systemic and one for idiosyncratic risk. S\&P500 is an index for the stock market that consists of a weighted-average of 500 companies in 10 different sectors of the economy. In addition to the overall index, Standard\&Poor, the company that publishes the index, also publish an index for each of the 10 subsectors. The most established tool for modeling the idiosyncratic risk is the Capital Asset Pricing Model (CAPM). In this model, agents are trying to maximize their expected utility of a portfolio, which is a function of expected return on investments. The parameters of the model are estimated using linear regression. The problem with CAPM is that is too naive, as it assumes a Gaussian deviations on the behavior of the agents from the model, something that is proven to be wrong in every major crisis.
+
+The Poisson process, a continuous time version of the Bernoulli Process, has an intensity parameter $\lambda$, where $E[a,b] = \lambda(b-a)$ is the expected number of arrivals during the interval $(a,b), ~b>a$. That intensity parameter is a function of the subsectors of the S\&P500 and in order to capture the change in the risk structure over time a Dirichlet process is being used. Finally, the Dirichlet Process is a probabilistic model over a number of clusters with (in the general form) concentration parameter $\alpha$, and base distribution $G$. The parameter $\alpha$ controls how similar the distribution $G$ is after passing through the Dirichlet process. The model of the paper, lifts the Gaussian assumption of the CAPM and the focus of the analysis is in description and explanation of the structure of systemic and idiosyncratic risk, not only prediction.
+\section*{2. Model, Simulation and Prior Eliciation}
+
+\subsection*{2.1 Model}
+
+
+\subsection*{2.2 MCMC}
+
+
+\subsection*{2.3 Hyperparameter Elicitatoin}
+
+
+
+
+\section*{3. Analysis of US market}
+
+
+\subsection*{3.1 General information}
+
+
+\subsection*{3.2 Model validation}
+
+
+\subsection*{3.3 Prior sensitivity analysis}
+
+
+\section*{4. Conclusion}
+The model produced by the authors has a number of advantages over previous models. First of all it has a non-parametric nature. Secondly, it focuses on the extreme returns rather than the average returns. This is interesting because in times where everything goes as expected, the models of returns are of little importance compared to turbulent times such as the dot com bubble burst or the financial crisis of 2007–2008. Thirdly, because of its non-parametric nature and the Poisson Dirichlet process the model is highly interpretable on all of it's components. Finally, the model can be extended to the debt market with minimal adjustments, even though the analysis of it was made using data from the equity market in the U.S.
+\bibliographystyle{plain}
+\bibliography{assignment_1_references.bib}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
