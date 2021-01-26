@@ -14,7 +14,7 @@
 %\usepackage{apacite}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
-\usepackage[a4paper,top=1.5cm,bottom=1.5cm,left=1cm,right=1cm,marginparwidth=1.75cm]{geometry}
+\usepackage[a4paper,top=3cm,bottom=3cm,left=1.5cm,right=1.5cm,marginparwidth=1.75cm]{geometry}
 
 %\graphicspath{ {./images} }
 \title{Assignment 1 - Report on a Scientific Paper}
@@ -26,7 +26,7 @@ Theodoros Ladas - s2124289
 \date{January 10, 2021}
 
 
-\onehalfspacing
+%\onehalfspacing
 \begin{document}
 \maketitle
 
@@ -65,11 +65,9 @@ The full model under the above assumptions for the prior and the Poisson Dirichl
 \times p(\pi)p(\tau)p(\gamma_0^*)\prod_j p(\gamma_j^*|\pi) \prod_j \prod_l h(\mu_{j,l}Beta(\nu_{j,l}|1,a_j)\prod_jp(a_j)
 \end{align*}
 
-To draw inference from the posterior, a blocked Gibbs sampling model was formed.
+To draw inference from the posterior, a blocked Gibbs sampling model was formed. All the hyperparameters of the model and all the priors have to be tuned, to make sure that they will not skew the results and dominate the posterior. For this step, a mixture of historical data and information from experts was used to elicit the hyperparameters. More specifically the $\gamma_0^*, \gamma_1^*,...,\gamma_{10}^*$ which are the total number of exceedance in each sector, have been modeled for each sector $j$ by the assumption of $E[\gamma_0^*+\gamma_j^*]$ being normally distributed with mean and variance estimates coming from historic averages of the market. Similarly, the $f_0^*, f_1^*, ..., f_J^*$, which are the density function, are being modeled with the precision parameter $\alpha_0,\alpha_1,...,\alpha_J$ as a rough estimate of the frequency at which distress periods arise per sector and scale parameter $\tau$ which represent the length of the distress period in the sector, again as a historical average. In the absence of these historical data, the authors highlight that a Uniform improper prior should be selected, because of its range over the full support of the hyperparameters.
 
-All the hyperparameters of the model and all the priors have to be tuned, to make sure that they will not skew the results and dominate the posterior. For this step, a mixture of historical data and information from experts was used to elicit the hyperparameters. More specifically the $\gamma_0^*, \gamma_1^*,...,\gamma_{10}^*$ which are the total number of exceedance in each sector, have been modeled for each sector $j$ by the assumption of $E[\gamma_0^*+\gamma_j^*]$ being normally distributed with mean and variance estimates coming from historic averages of the market. Similarly, the $f_0^*, f_1^*, ..., f_J^*$, which are the density function, are being modeled with the precision parameter $\alpha_0,\alpha_1,...,\alpha_J$ as a rough estimate of the frequency at which distress periods arise per sector and scale parameter $\tau$ which represent the length of the distress period in the sector, again as a historical average. In the absence of these historical data, the authors highlight that a Uniform improper prior should be selected, because of its range over the full support of the hyperparameters.
-
-\section*{3. Real-life analysis}
+\section*{3. Real-life application}
 
 \subsection*{3.1 General information}
 The algorithm was tested on real-world data from the U.S. equity market from January 1, 2000 to December 31, 2011 from Bloomberg's financial services, and the upper threshold that was selected was $u=2\%$. That $2\%$ meant that the sample size for the sectors was ranging from 85 datapoints up to 387 times where the threshold was exceeded. The threshold, along with all the other priors mathematically specified in the previous paragraph have been cross-validated without significant quantitative differences in the end result. The MCMC algorithm had an effective sample size of $3000$ with a burn-in period of $20000$ and a thinning parameter of 50 iterations. There was no lack of convergence evident, which was monitored with four independent chains on trace plots according to the methodology of Gelman and Rubin. The other priors and hyperparameters were calculated by historical averages. 
