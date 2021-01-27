@@ -23,7 +23,11 @@ Theodoros Ladas - s2124289
 \footnote{University of Edinburgh s2124289@ed.ac.uk}
 }
 \titlepic{\includegraphics[width=12.528cm,height=3cm]{./images/edinburgh.png}} 
-\date{January 10, 2021}
+\date{\parbox{\linewidth}{\centering%
+  January 10, 2021\endgraf\bigskip
+  Coordinator: Miguel de Carvalho\endgraf\medskip
+  Dept.\ of Mathematics \endgraf
+  University of Edinburgh}}
 
 
 %\onehalfspacing
@@ -51,7 +55,7 @@ where $\Lambda_0^*(t)$, shows the systemic risk intensity function and $\Lambda_
 \end{equation}
 Within each sector the exceedance rate $\gamma_j$ is the sum of the systematic and idiosyncratic rates
 Sector specific distribution $F_j$ is a mixture of the systemic and idiosyncratic distribution functions.
-If we write: $\epsilon_j=\frac{\gamma_0^*}{\gamma_0^* +\gamma_j^*}$, this represents the proportion of exceedance in sector $j$  that are associated with the systematic component which is highly interpretable. The density function $f_0^*$ and $f_1^*, ..., f_J^*$ are coming from a Dirichlet process $f_j^*(t) = \int\psi(t|\mu, \tau)dG_j^*(\mu)$, where $\psi(t|\mu, \tau)$ is the kernel density models as a Beta distribution on $[0,T]$ and $G_j^*(\mu)$ is the discrete mixing distribution. Finally the intensity functions $\lambda_0^* \lambda_1^*, ..., \lambda_J^*$ are specified with rate parameters $\gamma_0^*, \gamma_1^*,...,\gamma_j^*$ that come from a Gamma prior. This is crusial as it allows to formulate a test for the precense of idiosyncratic risks in a sector. 
+If we write: $\epsilon_j=\frac{\gamma_0^*}{\gamma_0^* +\gamma_j^*}$, this represents the proportion of exceedance in sector $j$  that are associated with the systematic component which is highly interpretable. The density function $f_0^*$ and $f_1^*, ..., f_J^*$ are coming from a Dirichlet process $f_j^*(t) = \int\psi(t|\mu, \tau)dG_j^*(\mu)$, where $\psi(t|\mu, \tau)$ is the kernel density models as a Beta distribution on $[0,T]$ and $G_j^*(\mu)$ is the discrete mixing distribution. Finally the intensity functions $\lambda_0^*, \lambda_1^*, ..., \lambda_J^*$ are specified with rate parameters $\gamma_0^*, \gamma_1^*,...,\gamma_j^*$ that come from a Gamma prior. This is crusial as it allows to formulate a test for the precense of idiosyncratic risks in a sector. 
 
 \subsection*{2.2 MCMC and Hyperparameter Tuning}
 The full model under the above assumptions for the prior and the Poisson Dirichlet process is 
