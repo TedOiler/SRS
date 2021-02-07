@@ -1,0 +1,105 @@
+---
+title: "assignment_2"
+author: "Ted Ladas - s2124289"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+require(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Requirements and hyperparameters:
+set.seed(1903)
+n_small = 200
+n_large = 1e6
+
+hyp_bins_small  = n_small / 1e1
+hyp_bins_large  = n_large / 5e4
+hyp_norm_mean   = 0
+hyp_norm_sd     = 1
+hyp_gamma_shape = 8
+hyp_gamma_rate  = 1
+U_small = runif(n_small)
+U_large = runif(n_large)
+
+
+# Generate the unimodal data
+y_small_uni_normal  = rnorm (n_small,
+                            mean=hyp_norm_mean,
+                            sd=hyp_norm_sd)
+y_small_uni_gamma   = rgamma(n_small,
+                            shape=hyp_gamma_shape,
+                            rate=hyp_gamma_rate)
+y_large_uni_normal  = rnorm (n_large,
+                            mean=hyp_norm_mean,
+                            sd=hyp_norm_sd)
+y_large_uni_gamma   = rgamma(n_large,
+                            shape=hyp_gamma_shape,
+                            rate=hyp_gamma_rate)
+
+# Generate the multimodal data
+y_small_multi_norm_gamma = rep(NA, n_small)
+y_large_multi_norm_gamma = rep(NA, n_large)
+
+for(i in 1:n_small){
+  if(U_small[i]<0.5){y_small_multi_norm_gamma[i]=rnorm (1,mean=hyp_norm_mean,sd=hyp_norm_sd)}
+  else              {y_small_multi_norm_gamma[i]=rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
+}
+
+for(i in 1:n_large){
+  if(U_large[i]<0.5){y_large_multi_norm_gamma[i]=rnorm (1,mean=hyp_norm_mean,sd=hyp_norm_sd)}
+  else              {y_large_multi_norm_gamma[i]=rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
+}
+
+# Histograms 
+par(mfrow=c(2,3))
+
+hist(y_small_uni_normal,
+     col='skyblue3',
+     breaks=hyp_bins_small,
+     freq= FALSE,
+     main = 'Small Normal',
+     xlab='Index')
+
+hist(y_small_uni_gamma,
+     col='skyblue3',
+     breaks=hyp_bins_small,
+     freq= FALSE,
+     main = 'Small Gamma',
+     xlab='Index')
+
+hist(y_small_multi_norm_gamma,
+     col='skyblue3',
+     breaks=hyp_bins_small,
+     freq= FALSE,
+     main = 'Small Normal-Gamma',
+     xlab='Index')
+
+
+hist(y_large_uni_normal,
+     col='chocolate1',
+     breaks=hyp_bins_large,
+     freq= FALSE,
+     main = 'Large Normal',
+     xlab='Index')
+
+hist(y_large_uni_gamma,
+     col='chocolate1',
+     breaks=hyp_bins_large,
+     freq= FALSE,
+     main = 'Large Gamma',
+     xlab='Index')
+
+hist(y_large_multi_norm_gamma,
+     col='chocolate1',
+     breaks=hyp_bins_large,
+     freq= FALSE,
+     main = 'Large Normal-Gamma',
+     xlab='Index')
+
+# KDE
+
+```
