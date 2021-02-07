@@ -6,7 +6,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 require(ggplot2)
-knitr::opts_chunk$set(echo = TRUE)
+require(kdensity)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
@@ -99,6 +100,8 @@ hist(y_large_multi_norm_gamma,
      freq= FALSE,
      main = 'Large Normal-Gamma',
      xlab='Index')
+
+par(mfrow=c(1,1))
 
 # KDE
 
