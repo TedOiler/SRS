@@ -26,7 +26,7 @@ hyp_norm_sd     = 1
 hyp_gamma_shape = 5
 hyp_gamma_rate  = 1
 hyp_mixing      = 0.5
-hyp_ban         = 1
+hyp_ban         = "nrd0"
 
 # Generate the unimodal data
 y_small_uni_normal  = rnorm (n_small,
@@ -87,8 +87,8 @@ kde_large_multi_norm_gamma = density(y_large_multi_norm_gamma,
                                      kernel='gaussian',
                                      n=hyp_bins_large)
 
-# 1000*0.5625
-jpeg("./images/hist_vs_GKDE.jpg", width=4096*0.4, height=2160*0.4)
+scaler=0.6
+jpeg("./images/hist_vs_GKDE.jpg", width=4096*scaler, height=2160*scaler)
 par(mfrow=c(2,3))
 font = 2.2
 x <- seq(-5, 5, length.out=n_small)
@@ -107,7 +107,7 @@ hist(y_small_uni_normal,
      cex.sub=font)
 lines(kde_small_uni_normal,
       lwd=2,
-      col='red4')
+      col='chocolate1')
 lines(x,y,
       lwd=2)
 rug(y_small_uni_normal)
@@ -128,7 +128,7 @@ hist(y_small_uni_gamma,
      cex.sub=font)
 lines(kde_small_uni_gamma,
       lwd=2,
-      col='red4')
+      col='chocolate1')
 lines(x,y,
       lwd=2)
 rug(y_small_uni_gamma)
@@ -150,9 +150,14 @@ hist(y_small_multi_norm_gamma,
      cex.sub=font)
 lines(kde_small_multi_norm_gamma,
       lwd=2,
-      col='red4')
+      col='chocolate1')
 lines(x,y,
      lwd=2)
+legend("topright",
+       c("Gaussian Kernel", "Histogram", "True Distribution"),
+       col=c("chocolate1", "skyblue3","black"),
+       lwd=10,
+       cex=font)
 rug(y_small_multi_norm_gamma)
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -160,7 +165,7 @@ rug(y_small_multi_norm_gamma)
 x <- seq(-5, 5, length.out=n_large)
 y <- dnorm(x, mean=hyp_norm_mean, sd=hyp_norm_sd)
 hist(y_large_uni_normal,
-     col='chocolate1',
+     col='darkolivegreen',
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Normal',
@@ -173,14 +178,14 @@ hist(y_large_uni_normal,
      cex.sub=font)
 lines(kde_large_uni_normal,
       lwd=2,
-      col='green4')
+      col='deeppink')
 lines(x,y,
       lwd=2)
 
 x <- seq(-2, 15, length.out=n_large)
 y <- dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_large_uni_gamma,
-     col='chocolate1',
+     col='darkolivegreen',
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Gamma',
@@ -193,7 +198,7 @@ hist(y_large_uni_gamma,
      cex.sub=font)
 lines(kde_large_uni_gamma,
       lwd=2,
-      col='green4')
+      col='deeppink')
 lines(x,y,
       lwd=2)
 
@@ -201,7 +206,7 @@ x <- seq(-4, 15, length.out=n_large)
 y <-  hyp_mixing      *dnorm (x, mean=hyp_norm_mean   , sd=hyp_norm_sd     ) +
       (1- hyp_mixing )*dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_large_multi_norm_gamma,
-     col='chocolate1',
+     col='darkolivegreen',
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Normal-Gamma',
@@ -214,16 +219,20 @@ hist(y_large_multi_norm_gamma,
      cex.sub=font)
 lines(kde_large_multi_norm_gamma,
       lwd=2,
-      col='green4')
+      col='deeppink')
 lines(x,y,
       lwd=2)
+legend("topright",
+       c("Gaussian Kernel", "Histogram", "True Distribution"),
+       col=c("deeppink", "darkolivegreen","black"),
+       lwd=10,
+       cex=font)
+
 
 dev.off()
 par(mfrow=c(1,1))
 
-cat("###################################")
 cat("\n###Script executed successfully!###")
-cat("\n###################################")
 ```
 
 ```{r MCMC}
