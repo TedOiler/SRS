@@ -26,8 +26,49 @@ hyp_norm_sd     = 1
 hyp_gamma_shape = 5
 hyp_gamma_rate  = 1
 hyp_mixing      = 0.5
-hyp_ban         = "nrd0"
+hyp_ban         = 'nrd0'
 
+set_kde <- function(data,data_den,length,x_start,x_end,bins,
+                    hyp_mean=hyp_norm_mean,
+                    hyp_sd=hyp_norm_sd,
+                    hyp_shape=hyp_gamma_shape,
+                    hyp_rate=hyp_gamma_rate,
+                    mixing = hyp_mixing){
+  ## This function optimizes the kernel bandwidth for the KDE by a minimizing 
+  ## the euclidean distance on a grid of given values. In can be further 
+  ## enchanted easily, but this is a basic first prototype.
+  h_seq <- seq(1e-5, 10, by=0.1)
+  dist_matrix = as.vector(matrix(1,nrow=length(h_seq)))
+  x_in <- seq(x_start, x_end, length.out=length)
+  
+  if(data_den=='norm')      {y_out <- dnorm(x_in, mean=hyp_mean, sd=hyp_sd)}
+  else if(data_den=='gamma'){y_out <- dgamma(x_in, shape=hyp_shape, rate=hyp_rate)}
+  else                      {y_out <- mixing*dnorm (x_in, mean=hyp_mean, sd=hyp_sd) + 
+                                      (1-mixing)*dgamma(x_in, shape=hyp_shape, rate=hyp_rate)}
+  
+  for(i in 1:length(h_seq)){
+    kde_den=density(data,bw=h_seq[i],kernel='gaussian',n=bins)
+    #dist_matrix[i]=sqrt(sum((kde_den$y-y_out)^2))
+    dist_matrix[i]=sqrt(mean(outer(kde_den$y,y_out,"-")^2))
+  }
+  hyp_ban_opt = h_seq[which.min(dist_matrix)]
+  kde_den=density(data,bw=hyp_ban_opt,kernel='gaussian',n=bins)
+  
+  # check whether the default bandwidth is better
+  
+  kde_den_default=density(data,bw='nrd0',kernel='gaussian',n=bins)
+  gs_error = sqrt(mean(outer(kde_den$y,y_out,"-")^2)) # grid search min error
+  df_error = sqrt(mean(outer(kde_den_default$y,y_out,"-")^2)) #default terror
+  
+  if(TRUE){ # the algorithm doesn't work yet 100% so this is why this locking mechanism exists for now
+    cat('Switching to default parameters for KDE')
+    kde_den = density(data,bw='nrd0',kernel='gaussian',n=bins)
+  }
+  return(kde_den)
+}
+
+
+# ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Generate the unimodal data
 y_small_uni_normal  = rnorm (n_small,
                             mean=hyp_norm_mean,
@@ -56,36 +97,39 @@ for(i in 1:n_large){
   else                     {y_large_multi_norm_gamma[i] = rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
 }
 
-####                                                 ####
-# TODO: set up code for tyning of hyp_ban and hyp_bins #
-####                                                 ####
 
 # Histograms and KDE
 # KDEs
-kde_small_uni_normal       = density(y_small_uni_normal,
-                                     bw=hyp_ban,
-                                     kernel='gaussian',
-                                     n=hyp_bins_small)
-kde_small_uni_gamma        = density(y_small_uni_gamma,
-                                     bw=hyp_ban,
-                                     kernel='gaussian',
-                                     n=hyp_bins_small)
-kde_small_multi_norm_gamma = density(y_small_multi_norm_gamma,
-                                     bw=hyp_ban,
-                                     kernel='gaussian',
-                                     n=hyp_bins_small)
-kde_large_uni_normal       = density(y_large_uni_normal,
-                                     bw=hyp_ban,
-                                     kernel='gaussian',
-                                     n=hyp_bins_large)
-kde_large_uni_gamma        = density(y_large_uni_gamma,
-                                     bw=hyp_ban,
-                                     kernel='gaussian',
-                                     n=hyp_bins_large)
-kde_large_multi_norm_gamma = density(y_large_multi_norm_gamma,
-                                     bw=hyp_ban,
-                                     kernel='gaussian',
-                                     n=hyp_bins_large)
+kde_small_uni_normal        = set_kde(data=y_small_uni_normal,data_den='norm',bins=hyp_bins_small,
+                                      length=n_small,
+                                      x_start=-5,
+                                      x_end=5)
+
+kde_small_uni_gamma         = set_kde(data=y_small_uni_gamma,data_den='gamma',bins=hyp_bins_small,
+                                      length=n_small,
+                                      x_start=-2,
+                                      x_end=15)
+
+kde_small_multi_norm_gamma  = set_kde(data=y_small_multi_norm_gamma,data_den='normgamma',bins=hyp_bins_small,
+                                      length=n_small,
+                                      x_start=-5,
+                                      x_end=15)
+
+
+kde_large_uni_normal        = set_kde(data=y_large_uni_normal,data_den='norm',bins=hyp_bins_large,
+                                      length=n_large,
+                                      x_start=-5,
+                                      x_end=5)
+
+kde_large_uni_gamma         = set_kde(data=y_large_uni_gamma,data_den='gamma',bins=hyp_bins_large,
+                                      length=n_large,
+                                      x_start=-2,
+                                      x_end=15)
+
+kde_large_multi_norm_gamma  = set_kde(data=y_large_multi_norm_gamma,data_den='normgamma',bins=hyp_bins_large,
+                                      length=n_large,
+                                      x_start=-4,
+                                      x_end=15)
 
 scaler=0.6
 jpeg("./images/hist_vs_GKDE.jpg", width=4096*scaler, height=2160*scaler)
