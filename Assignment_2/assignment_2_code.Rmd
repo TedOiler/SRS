@@ -1,5 +1,5 @@
 ---
-title: "assignment_2"
+title: "Assignment 2"
 author: "Ted Ladas - s2124289"
 output: html_document
 ---
@@ -11,21 +11,22 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-```{r}
+```{r KDE vs Histogram}
 # Requirements and hyperparameters:
 set.seed(1903)
 n_small = 200
 n_large = 1e6
-
-hyp_bins_small  = n_small / 1e1
-hyp_bins_large  = n_large / 5e4
-hyp_norm_mean   = 0
-hyp_norm_sd     = 1
-hyp_gamma_shape = 8
-hyp_gamma_rate  = 1
 U_small = runif(n_small)
 U_large = runif(n_large)
 
+hyp_bins_small  = 20
+hyp_bins_large  = 30
+hyp_norm_mean   = 0
+hyp_norm_sd     = 1
+hyp_gamma_shape = 5
+hyp_gamma_rate  = 1
+hyp_mixing      = 0.5
+hyp_ban         = 1
 
 # Generate the unimodal data
 y_small_uni_normal  = rnorm (n_small,
@@ -46,63 +47,185 @@ y_small_multi_norm_gamma = rep(NA, n_small)
 y_large_multi_norm_gamma = rep(NA, n_large)
 
 for(i in 1:n_small){
-  if(U_small[i]<0.5){y_small_multi_norm_gamma[i]=rnorm (1,mean=hyp_norm_mean,sd=hyp_norm_sd)}
-  else              {y_small_multi_norm_gamma[i]=rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
+  if(U_small[i]<hyp_mixing){y_small_multi_norm_gamma[i] = rnorm (1,mean=hyp_norm_mean,sd=hyp_norm_sd)}
+  else                     {y_small_multi_norm_gamma[i] = rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
 }
 
 for(i in 1:n_large){
-  if(U_large[i]<0.5){y_large_multi_norm_gamma[i]=rnorm (1,mean=hyp_norm_mean,sd=hyp_norm_sd)}
-  else              {y_large_multi_norm_gamma[i]=rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
+  if(U_large[i]<hyp_mixing){y_large_multi_norm_gamma[i] = rnorm (1,mean=hyp_norm_mean,sd=hyp_norm_sd)}
+  else                     {y_large_multi_norm_gamma[i] = rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
 }
 
-# Histograms 
-par(mfrow=c(2,3))
+####                                                 ####
+# TODO: set up code for tyning of hyp_ban and hyp_bins #
+####                                                 ####
 
+# Histograms and KDE
+# KDEs
+kde_small_uni_normal       = density(y_small_uni_normal,
+                                     bw=hyp_ban,
+                                     kernel='gaussian',
+                                     n=hyp_bins_small)
+kde_small_uni_gamma        = density(y_small_uni_gamma,
+                                     bw=hyp_ban,
+                                     kernel='gaussian',
+                                     n=hyp_bins_small)
+kde_small_multi_norm_gamma = density(y_small_multi_norm_gamma,
+                                     bw=hyp_ban,
+                                     kernel='gaussian',
+                                     n=hyp_bins_small)
+kde_large_uni_normal       = density(y_large_uni_normal,
+                                     bw=hyp_ban,
+                                     kernel='gaussian',
+                                     n=hyp_bins_large)
+kde_large_uni_gamma        = density(y_large_uni_gamma,
+                                     bw=hyp_ban,
+                                     kernel='gaussian',
+                                     n=hyp_bins_large)
+kde_large_multi_norm_gamma = density(y_large_multi_norm_gamma,
+                                     bw=hyp_ban,
+                                     kernel='gaussian',
+                                     n=hyp_bins_large)
+
+# 1000*0.5625
+jpeg("./images/hist_vs_GKDE.jpg", width=4096*0.4, height=2160*0.4)
+par(mfrow=c(2,3))
+font = 2.2
+x <- seq(-5, 5, length.out=n_small)
+y <- dnorm(x, mean=hyp_norm_mean, sd=hyp_norm_sd)
 hist(y_small_uni_normal,
      col='skyblue3',
      breaks=hyp_bins_small,
      freq= FALSE,
      main = 'Small Normal',
-     xlab='Index')
+     xlab='Index',
+     xlim=c(-5,5),
+     ylim=c(0,0.5),
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+lines(kde_small_uni_normal,
+      lwd=2,
+      col='red4')
+lines(x,y,
+      lwd=2)
+rug(y_small_uni_normal)
 
+x <- seq(-2, 15, length.out=n_small)
+y <- dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_small_uni_gamma,
      col='skyblue3',
      breaks=hyp_bins_small,
      freq= FALSE,
      main = 'Small Gamma',
-     xlab='Index')
+     xlab='Index',
+     xlim=c(-2,15),
+     ylim=c(0,0.3),
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+lines(kde_small_uni_gamma,
+      lwd=2,
+      col='red4')
+lines(x,y,
+      lwd=2)
+rug(y_small_uni_gamma)
 
+x <- seq(-5, 15, length.out=n_small)
+y <-  hyp_mixing      *dnorm (x, mean=hyp_norm_mean   , sd=hyp_norm_sd     ) +
+      (1- hyp_mixing )*dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_small_multi_norm_gamma,
      col='skyblue3',
      breaks=hyp_bins_small,
      freq= FALSE,
      main = 'Small Normal-Gamma',
-     xlab='Index')
+     xlab='Index',
+     xlim=c(-5,15),
+     ylim=c(0,0.2),
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+lines(kde_small_multi_norm_gamma,
+      lwd=2,
+      col='red4')
+lines(x,y,
+     lwd=2)
+rug(y_small_multi_norm_gamma)
 
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+x <- seq(-5, 5, length.out=n_large)
+y <- dnorm(x, mean=hyp_norm_mean, sd=hyp_norm_sd)
 hist(y_large_uni_normal,
      col='chocolate1',
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Normal',
-     xlab='Index')
+     xlab='Index',
+     xlim=c(-5,5),
+     ylim=c(0,0.5),
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+lines(kde_large_uni_normal,
+      lwd=2,
+      col='green4')
+lines(x,y,
+      lwd=2)
 
+x <- seq(-2, 15, length.out=n_large)
+y <- dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_large_uni_gamma,
      col='chocolate1',
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Gamma',
-     xlab='Index')
+     xlab='Index',
+     xlim=c(-2,15),
+     ylim=c(0,0.3),
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+lines(kde_large_uni_gamma,
+      lwd=2,
+      col='green4')
+lines(x,y,
+      lwd=2)
 
+x <- seq(-4, 15, length.out=n_large)
+y <-  hyp_mixing      *dnorm (x, mean=hyp_norm_mean   , sd=hyp_norm_sd     ) +
+      (1- hyp_mixing )*dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_large_multi_norm_gamma,
      col='chocolate1',
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Normal-Gamma',
-     xlab='Index')
+     xlab='Index',
+     xlim=c(-4,15),
+     ylim=c(0,0.3),
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+lines(kde_large_multi_norm_gamma,
+      lwd=2,
+      col='green4')
+lines(x,y,
+      lwd=2)
 
+dev.off()
 par(mfrow=c(1,1))
 
-# KDE
+cat("###################################")
+cat("\n###Script executed successfully!###")
+cat("\n###################################")
+```
+
+```{r MCMC}
 
 ```
