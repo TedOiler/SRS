@@ -286,7 +286,7 @@ cat("\n###Script executed successfully!###")
 
 ```{r MCMC}
 set.seed(1903)
-n               = seq(250,1000, by=10)
+n               = seq(100,2e3, by=50)
 R               = 1000
 hyp_mixing      = 0.5
 hyp_norm_mean   = 0
@@ -308,7 +308,7 @@ for(i in 1:length(n)){
     y_multi_normal_gamma_0[r, ] = rnorm (n[i]/2,mean=hyp_norm_mean,sd=hyp_norm_sd)
     y_multi_normal_gamma_1[r, ] = rgamma(n[i]/2,shape=hyp_gamma_shape,rate=hyp_gamma_rate)
   }
-  y_multi_normal_gamma = cbind(y_multi_normal_gamma_0,y_multi_normal_gamma_1)
+  y_multi_normal_gamma    = cbind(y_multi_normal_gamma_0,y_multi_normal_gamma_1)
   MCMC_uni_normal         = colMeans(y_uni_normal) 
   MCMC_uni_gamma          = colMeans(y_uni_gamma) 
   MCMC_multi_normal_gamma = colMeans(y_multi_normal_gamma) 
@@ -349,19 +349,123 @@ for(i in 1:length(n)){
   results[i,2] = ISE_uni_gamma$value
   results[i,3] = ISE_multi_normal_gamma$value
 }
-results
+
+resutl_normal_250       = results[4,1]
+resutl_normal_500       = results[9,1]
+resutl_normal_1e3       = results[19,1]
+resutl_gamma_250        = results[4,2]
+resutl_gamma_500        = results[9,2]
+resutl_gamma_1e3        = results[19,2]
+resutl_normal_gamma_250 = results[4,3]
+resutl_normal_gamma_500 = results[9,3]
+resutl_normal_gamma_1e3 = results[19,3]
+
+scaler=0.3
+font=1.2
+jpeg("./images/MISE error.jpg", width=4096*scaler, height=2160*scaler)
+par(mfrow=c(3.5,1), mai=c(0.3,0.3,0.5,0.5))
+plot(n,
+     results[,1],
+     main='MISE Normal model',
+     ylab='MISE',
+     xlab=expression('n'),
+     ylim=c(7.2, 8.9),
+     type='b',
+     lwd=2,
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+abline(v=250, col='red4', lwd=2.5)
+abline(v=500, col='green4', lwd=2.5)
+abline(v=1000, col='blue4', lwd=2.5)
+text(x=250,
+     y=resutl_normal_250,
+     c(round(resutl_normal_250,2)),
+     adj = c(0,0),
+     cex=2)
+text(x=500,
+     y=resutl_normal_500,
+     c(round(resutl_normal_1e3,2)),
+     adj = c(0,0),
+     cex=2)
+text(x=1000,
+     y=resutl_normal_1e3,
+     c(round(resutl_normal_1e3,2)),
+     pos=2,
+     cex=2)
+
+plot(n,
+     results[,2],
+     main='MISE Gamma model',
+     ylab='MISE',
+     xlab=expression('n'),
+     ylim=c(3.4, 4.2),
+     type='b',
+     lwd=2,
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+abline(v=250, col='red4', lwd=2.5)
+abline(v=500, col='green4', lwd=2.5)
+abline(v=1000, col='blue4', lwd=2.5)
+text(x=250,
+     y=resutl_gamma_250,
+     c(round(resutl_gamma_250,2)),
+     pos=4,
+     cex=2)
+text(x=500,
+     y=resutl_gamma_500,
+     c(round(resutl_gamma_1e3,2)),
+     adj = c(0,0),
+     cex=2)
+text(x=1000,
+     y=resutl_gamma_1e3,
+     c(round(resutl_gamma_1e3,2)),
+     pos=2,
+     cex=2)
+
+plot(n,
+     results[,3],
+     main='MISE Normal-Gamma model',
+     ylab='MISE',
+     xlab=expression('n'),
+     ylim=c(0, 0.18),
+     type='b',
+     lwd=2,
+     cex.lab=font,
+     cex.axis=font,
+     cex.main=font,
+     cex.sub=font)
+abline(v=250, col='red4', lwd=2.5)
+abline(v=500, col='green4', lwd=2.5)
+abline(v=1000, col='blue4', lwd=2.5)
+text(x=250,
+     y=resutl_normal_gamma_250,
+     c(round(resutl_normal_gamma_250,2)),
+     adj = c(0,1),
+     cex=2)
+text(x=500,
+     y=resutl_normal_gamma_500,
+     c(round(resutl_normal_gamma_1e3,2)),
+     adj = c(0,1),
+     cex=2)
+text(x=1000,
+     y=resutl_normal_gamma_1e3,
+     c(round(resutl_normal_gamma_1e3,2)),
+     adj = c(0,1),
+     cex=2)
+dev.off()
+
+cat("\n###Script executed successfully!###")
+
 ```
 
 
 
 
 ```{r stackoverflow code}
-test = c(3,4)
-
-for(i in 1:length(test)){
-  print(test[i])
-}
-
 set.seed(1)
 x1 = rnorm(250) 
 #Computing of bandwidth
@@ -372,4 +476,16 @@ est = density(x1,kernel = "gaussian",bw = h1)
 # Create approx func obj and integrate()
 splxy = splinefun(est$x, (est$y - dnorm(est$x))^2)
 integrate(splxy, lower = min(x1), upper = max(x1)) # res 0.0006681713
+
+
+plot(1:10, 1:10, main = "text(...) examples\n~~~~~~~~~~~~~~")
+points(c(6,2), c(2,1), pch = 3, cex = 4, col = "red")
+text(6, 2, "the text is CENTERED around (x,y) = (6,2) by default",
+     cex = .8)
+text(2, 1, "or Left/Bottom - JUSTIFIED at (2,1) by 'adj = c(0,0)'",
+     adj = c(0,0))
+text(4, 9, expression(hat(beta) == (X^t * X)^{-1} * X^t * y))
+text(4, 8.4, "expression(hat(beta) == (X^t * X)^{-1} * X^t * y)",
+     cex = .75)
+text(4, 7, expression(bar(x) == sum(frac(x[i], n), i==1, n)))
 ```
