@@ -30,6 +30,7 @@ hyp_ban         = 'nrd0'
 ```
 
 ```{r helper functions}
+set.seed(1903)
 set_kde = function(data,data_den,length,x_start,x_end,bins,
                     hyp_mean=hyp_norm_mean,
                     hyp_sd=hyp_norm_sd,
@@ -71,6 +72,7 @@ set_kde = function(data,data_den,length,x_start,x_end,bins,
 ```
 
 ```{r KDE vs Histogram}
+set.seed(1903)
 # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Generate the unimodal data
 y_small_uni_normal  = rnorm (n_small,
@@ -283,7 +285,8 @@ cat("\n###Script executed successfully!###")
 ```
 
 ```{r MCMC}
-n_1             = 250
+set.seed(1903)
+n_1             = 2.5e2
 R               = 1000
 hyp_mixing      = 0.5
 hyp_norm_mean   = 0
@@ -291,22 +294,58 @@ hyp_norm_sd     = 1
 hyp_gamma_shape = 5
 hyp_gamma_rate  = 1
 
-y_uni_normal = matrix(NA, R, n_1) 
-mu_norm = numeric(R)
-U = runif(n_1)
-
+y_uni_normal         = matrix(NA, R, n_1) 
+y_uni_gamma          = matrix(NA, R, n_1) 
+y_multi_normal_gamma_0 = matrix(NA, R, n_1/2)
+y_multi_normal_gamma_1 = matrix(NA, R, n_1/2) 
+y_multi_normal_gamma = matrix(NA, R, n_1) 
 # MCMC
 for(r in 1:R){
   y_uni_normal[r, ] = rnorm (n_1,mean=hyp_norm_mean,sd=hyp_norm_sd)
-  mu_norm[r] = mean(y_uni_normal[r, ])
+  y_uni_gamma[r, ]  = rgamma(n_1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)
+  y_multi_normal_gamma_0[r, ] = rnorm (n_1/2,mean=hyp_norm_mean,sd=hyp_norm_sd)
+  y_multi_normal_gamma_1[r, ] = rgamma(n_1/2,shape=hyp_gamma_shape,rate=hyp_gamma_rate)
 }
-MCMC_uni_nor = colMeans(y_uni_normal) 
-MCMC_kde_uni_norm = density(MCMC_uni_nor, n=n_1)
+y_multi_normal_gamma = cbind(y_multi_normal_gamma_0,y_multi_normal_gamma_1)
+MCMC_uni_normal         = colMeans(y_uni_normal) 
+MCMC_uni_gamma          = colMeans(y_uni_gamma) 
+MCMC_multi_normal_gamma = colMeans(y_multi_normal_gamma) 
+# h_normal       = bw.ucv(MCMC_uni_normal)
+# h_gamma        = bw.ucv(MCMC_uni_gamma)
+# h_normal_gamma = bw.ucv(MCMC_multi_normal_gamma)
+
+MCMC_kde_uni_normal         = density(MCMC_uni_normal,
+                                      n=n_1,
+                                      bw='nrd0')
+MCMC_kde_uni_gamma          = density(MCMC_uni_gamma,
+                                      n=n_1,
+                                      bw='nrd0')
+MCMC_kde_multi_normal_gamma = density(MCMC_multi_normal_gamma,
+                                      n=n_1,
+                                      bw='nrd0')
+
 # https://stats.stackexchange.com/questions/390777/how-to-compute-integrated-squared-error-for-kernel-density-estimation-in-r
-# Create approx func obj and integrate()
-MCMC_uni_norm_error = splinefun(MCMC_kde_uni_norm$x, (MCMC_kde_uni_norm$y - dnorm(MCMC_kde_uni_norm$x))^2)
-ISE_uni_norm = integrate(MCMC_uni_norm_error, lower = min(MCMC_uni_nor), upper = max(MCMC_uni_nor))
-ISE_uni_norm
+MCMC_uni_normal_error         = splinefun(MCMC_kde_uni_normal$x,
+                                          (MCMC_kde_uni_normal$y-dnorm(MCMC_kde_uni_normal$x))^2)
+ISE_uni_normal                = integrate(MCMC_uni_normal_error,
+                                          lower=min(MCMC_uni_normal),
+                                          upper=max(MCMC_uni_normal))
+
+MCMC_uni_gamma_error          = splinefun(MCMC_kde_uni_gamma$x,
+                                          (MCMC_kde_uni_gamma$y-dnorm(MCMC_kde_uni_gamma$x))^2)
+ISE_uni_gamma                 = integrate(MCMC_uni_gamma_error,
+                                          lower=min(MCMC_uni_gamma),
+                                          upper=max(MCMC_uni_gamma))
+
+MCMC_multi_normal_gamma_error = splinefun(MCMC_kde_multi_normal_gamma$x,
+                                          (MCMC_kde_multi_normal_gamma$y-dnorm(MCMC_kde_multi_normal_gamma$x))^2)
+ISE_multi_normal_gamma        = integrate(MCMC_multi_normal_gamma_error,
+                                          lower=min(MCMC_multi_normal_gamma),
+                                          upper=max(MCMC_multi_normal_gamma))
+
+ISE_uni_normal
+ISE_uni_gamma
+ISE_multi_normal_gamma
 ```
 
 
