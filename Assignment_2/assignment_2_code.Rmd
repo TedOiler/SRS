@@ -138,8 +138,8 @@ kde_large_multi_norm_gamma  = set_kde(data=y_large_multi_norm_gamma,data_den='no
 
 scaler=0.6
 jpeg("./images/hist_vs_GKDE.jpg", width=4096*scaler, height=2160*scaler)
-par(mfrow=c(2,3))
-font = 2.2
+par(mfrow=c(2,3), mai=c(0.5,0.5,0.8,0.8))
+font = 4
 x = seq(-5, 5, length.out=n_small)
 y = dnorm(x, mean=hyp_norm_mean, sd=hyp_norm_sd)
 hist(y_small_uni_normal,
@@ -147,7 +147,8 @@ hist(y_small_uni_normal,
      breaks=hyp_bins_small,
      freq= FALSE,
      main = 'Small Normal',
-     xlab='Index',
+     xlab = NULL,
+     ylab = NULL,
      xlim=c(-5,5),
      ylim=c(0,0.5),
      cex.lab=font,
@@ -168,7 +169,8 @@ hist(y_small_uni_gamma,
      breaks=hyp_bins_small,
      freq= FALSE,
      main = 'Small Gamma',
-     xlab='Index',
+     xlab = NULL,
+     ylab = NULL,
      xlim=c(-2,15),
      ylim=c(0,0.3),
      cex.lab=font,
@@ -190,7 +192,8 @@ hist(y_small_multi_norm_gamma,
      breaks=hyp_bins_small,
      freq= FALSE,
      main = 'Small Normal-Gamma',
-     xlab='Index',
+     xlab = NULL,
+     ylab = NULL,
      xlim=c(-5,15),
      ylim=c(0,0.2),
      cex.lab=font,
@@ -218,7 +221,8 @@ hist(y_large_uni_normal,
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Normal',
-     xlab='Index',
+     xlab = NULL,
+     ylab = NULL,
      xlim=c(-5,5),
      ylim=c(0,0.5),
      cex.lab=font,
@@ -238,7 +242,8 @@ hist(y_large_uni_gamma,
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Gamma',
-     xlab='Index',
+     xlab = NULL,
+     ylab = NULL,
      xlim=c(-2,15),
      ylim=c(0,0.3),
      cex.lab=font,
@@ -259,7 +264,8 @@ hist(y_large_multi_norm_gamma,
      breaks=hyp_bins_large,
      freq= FALSE,
      main = 'Large Normal-Gamma',
-     xlab='Index',
+     xlab = NULL,
+     ylab = NULL,
      xlim=c(-4,15),
      ylim=c(0,0.3),
      cex.lab=font,
@@ -460,10 +466,17 @@ dev.off()
 
 cat("\n###Script executed successfully!###")
 
+round(resutl_normal_250,3)    
+round(resutl_normal_500 ,3)      
+round(resutl_normal_1e3  ,3)     
+round(resutl_gamma_250,3)
+round(resutl_gamma_500   ,3)     
+round(resutl_gamma_1e3    ,3)    
+round(resutl_normal_gamma_250 ,3)
+round(resutl_normal_gamma_500 ,3)
+round(resutl_normal_gamma_1e3 ,3)
+
 ```
-
-
-
 
 ```{r stackoverflow code}
 set.seed(1)

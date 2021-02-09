@@ -11,13 +11,13 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{titlepic}
-%\usepackage{apacite}
+\usepackage{booktabs} % For prettier tables
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \usepackage[a4paper,top=3cm,bottom=3cm,left=1.5cm,right=1.5cm,marginparwidth=1.75cm]{geometry}
 
 %\graphicspath{ {./images} }
-\title{Assignment 1 - Report on a Scientific Paper}
+\title{Assignment 2 - Simulation Experiment}
 \author{
 Theodoros Ladas - s2124289 
 \footnote{University of Edinburgh s2124289@ed.ac.uk}
@@ -34,21 +34,41 @@ Theodoros Ladas - s2124289
 \begin{document}
 \maketitle
 
-\section*{1. Introduction and Aim}
+\section*{1. Experiment}
 
-\section*{2. Method}
 
-\subsection*{2.1 Model}
 
-\subsection*{2.2 MCMC and Hyperparameter Tuning}
 
-\section*{3. Real-life application}
 
-\subsection*{3.1 General information}
 
-\subsection*{3.2 Model validation and sensitivity analysis}
 
-\section*{4. Conclusion}
+\subsection*{1.1. Data generating processes}
+
+\subsection*{1.2. KDE vs Histogram}
+
+
+\includegraphics[width=0.6\textwidth]{./images/hist_vs_GKDE.jpg}
+
+
+
+\section*{2. Monte Carlo}
+
+
+\begin{tabular}{|l|lll|}
+\hline
+n    & Normal & Gamma & Mixture \\ \hline
+250  & 8.612  & 4.092 & 0.092   \\
+500  & 8.013  & 3.994 & 0.101   \\
+1000 & 8.095  & 3.879 & 0.117   \\ \hline
+\end{tabular}
+
+
+
+\includegraphics[width=1\textwidth]{./images/MISE error.jpg}
+
+
+
+\section*{3. Conclusion}
 
 \bibliographystyle{plain}
 \bibliography{assignment_2_references.bib}
