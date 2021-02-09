@@ -286,72 +286,82 @@ cat("\n###Script executed successfully!###")
 
 ```{r MCMC}
 set.seed(1903)
-n_1             = 2.5e2
+n               = seq(250,1000, by=10)
 R               = 1000
 hyp_mixing      = 0.5
 hyp_norm_mean   = 0
 hyp_norm_sd     = 1
 hyp_gamma_shape = 5
 hyp_gamma_rate  = 1
+results = matrix(NA, length(n), 3)
 
-y_uni_normal         = matrix(NA, R, n_1) 
-y_uni_gamma          = matrix(NA, R, n_1) 
-y_multi_normal_gamma_0 = matrix(NA, R, n_1/2)
-y_multi_normal_gamma_1 = matrix(NA, R, n_1/2) 
-y_multi_normal_gamma = matrix(NA, R, n_1) 
-# MCMC
-for(r in 1:R){
-  y_uni_normal[r, ] = rnorm (n_1,mean=hyp_norm_mean,sd=hyp_norm_sd)
-  y_uni_gamma[r, ]  = rgamma(n_1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)
-  y_multi_normal_gamma_0[r, ] = rnorm (n_1/2,mean=hyp_norm_mean,sd=hyp_norm_sd)
-  y_multi_normal_gamma_1[r, ] = rgamma(n_1/2,shape=hyp_gamma_shape,rate=hyp_gamma_rate)
+for(i in 1:length(n)){
+  y_uni_normal         = matrix(NA, R, n[i]) 
+  y_uni_gamma          = matrix(NA, R, n[i]) 
+  y_multi_normal_gamma_0 = matrix(NA, R, n[i]/2)
+  y_multi_normal_gamma_1 = matrix(NA, R, n[i]/2) 
+  y_multi_normal_gamma = matrix(NA, R, n[i]) 
+  # MCMC
+  for(r in 1:R){
+    y_uni_normal[r, ] = rnorm (n[i],mean=hyp_norm_mean,sd=hyp_norm_sd)
+    y_uni_gamma[r, ]  = rgamma(n[i],shape=hyp_gamma_shape,rate=hyp_gamma_rate)
+    y_multi_normal_gamma_0[r, ] = rnorm (n[i]/2,mean=hyp_norm_mean,sd=hyp_norm_sd)
+    y_multi_normal_gamma_1[r, ] = rgamma(n[i]/2,shape=hyp_gamma_shape,rate=hyp_gamma_rate)
+  }
+  y_multi_normal_gamma = cbind(y_multi_normal_gamma_0,y_multi_normal_gamma_1)
+  MCMC_uni_normal         = colMeans(y_uni_normal) 
+  MCMC_uni_gamma          = colMeans(y_uni_gamma) 
+  MCMC_multi_normal_gamma = colMeans(y_multi_normal_gamma) 
+  # h_normal       = bw.ucv(MCMC_uni_normal)
+  # h_gamma        = bw.ucv(MCMC_uni_gamma)
+  # h_normal_gamma = bw.ucv(MCMC_multi_normal_gamma)
+  
+  MCMC_kde_uni_normal         = density(MCMC_uni_normal,
+                                        n=n[i],
+                                        bw='nrd0')
+  MCMC_kde_uni_gamma          = density(MCMC_uni_gamma,
+                                        n=n[i],
+                                        bw='nrd0')
+  MCMC_kde_multi_normal_gamma = density(MCMC_multi_normal_gamma,
+                                        n=n[i],
+                                        bw='nrd0')
+  
+  # https://stats.stackexchange.com/questions/390777/how-to-compute-integrated-squared-error-for-kernel-density-estimation-in-r
+  MCMC_uni_normal_error         = splinefun(MCMC_kde_uni_normal$x,
+                                            (MCMC_kde_uni_normal$y-dnorm(MCMC_kde_uni_normal$x))^2)
+  ISE_uni_normal                = integrate(MCMC_uni_normal_error,
+                                            lower=min(MCMC_uni_normal),
+                                            upper=max(MCMC_uni_normal))
+  
+  MCMC_uni_gamma_error          = splinefun(MCMC_kde_uni_gamma$x,
+                                            (MCMC_kde_uni_gamma$y-dnorm(MCMC_kde_uni_gamma$x))^2)
+  ISE_uni_gamma                 = integrate(MCMC_uni_gamma_error,
+                                            lower=min(MCMC_uni_gamma),
+                                            upper=max(MCMC_uni_gamma))
+  
+  MCMC_multi_normal_gamma_error = splinefun(MCMC_kde_multi_normal_gamma$x,
+                                            (MCMC_kde_multi_normal_gamma$y-dnorm(MCMC_kde_multi_normal_gamma$x))^2)
+  ISE_multi_normal_gamma        = integrate(MCMC_multi_normal_gamma_error,
+                                            lower=min(MCMC_multi_normal_gamma),
+                                            upper=max(MCMC_multi_normal_gamma))
+  
+  results[i,1] = ISE_uni_normal$value
+  results[i,2] = ISE_uni_gamma$value
+  results[i,3] = ISE_multi_normal_gamma$value
 }
-y_multi_normal_gamma = cbind(y_multi_normal_gamma_0,y_multi_normal_gamma_1)
-MCMC_uni_normal         = colMeans(y_uni_normal) 
-MCMC_uni_gamma          = colMeans(y_uni_gamma) 
-MCMC_multi_normal_gamma = colMeans(y_multi_normal_gamma) 
-# h_normal       = bw.ucv(MCMC_uni_normal)
-# h_gamma        = bw.ucv(MCMC_uni_gamma)
-# h_normal_gamma = bw.ucv(MCMC_multi_normal_gamma)
-
-MCMC_kde_uni_normal         = density(MCMC_uni_normal,
-                                      n=n_1,
-                                      bw='nrd0')
-MCMC_kde_uni_gamma          = density(MCMC_uni_gamma,
-                                      n=n_1,
-                                      bw='nrd0')
-MCMC_kde_multi_normal_gamma = density(MCMC_multi_normal_gamma,
-                                      n=n_1,
-                                      bw='nrd0')
-
-# https://stats.stackexchange.com/questions/390777/how-to-compute-integrated-squared-error-for-kernel-density-estimation-in-r
-MCMC_uni_normal_error         = splinefun(MCMC_kde_uni_normal$x,
-                                          (MCMC_kde_uni_normal$y-dnorm(MCMC_kde_uni_normal$x))^2)
-ISE_uni_normal                = integrate(MCMC_uni_normal_error,
-                                          lower=min(MCMC_uni_normal),
-                                          upper=max(MCMC_uni_normal))
-
-MCMC_uni_gamma_error          = splinefun(MCMC_kde_uni_gamma$x,
-                                          (MCMC_kde_uni_gamma$y-dnorm(MCMC_kde_uni_gamma$x))^2)
-ISE_uni_gamma                 = integrate(MCMC_uni_gamma_error,
-                                          lower=min(MCMC_uni_gamma),
-                                          upper=max(MCMC_uni_gamma))
-
-MCMC_multi_normal_gamma_error = splinefun(MCMC_kde_multi_normal_gamma$x,
-                                          (MCMC_kde_multi_normal_gamma$y-dnorm(MCMC_kde_multi_normal_gamma$x))^2)
-ISE_multi_normal_gamma        = integrate(MCMC_multi_normal_gamma_error,
-                                          lower=min(MCMC_multi_normal_gamma),
-                                          upper=max(MCMC_multi_normal_gamma))
-
-ISE_uni_normal
-ISE_uni_gamma
-ISE_multi_normal_gamma
+results
 ```
 
 
 
 
 ```{r stackoverflow code}
+test = c(3,4)
+
+for(i in 1:length(test)){
+  print(test[i])
+}
+
 set.seed(1)
 x1 = rnorm(250) 
 #Computing of bandwidth
