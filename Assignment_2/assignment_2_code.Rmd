@@ -5,7 +5,6 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-require(ggplot2)
 require(kdensity)
 knitr::opts_chunk$set(echo = FALSE)
 ```
@@ -28,7 +27,7 @@ hyp_gamma_rate  = 1
 hyp_mixing      = 0.5
 hyp_ban         = 'nrd0'
 
-set_kde <- function(data,data_den,length,x_start,x_end,bins,
+set_kde = function(data,data_den,length,x_start,x_end,bins,
                     hyp_mean=hyp_norm_mean,
                     hyp_sd=hyp_norm_sd,
                     hyp_shape=hyp_gamma_shape,
@@ -37,13 +36,13 @@ set_kde <- function(data,data_den,length,x_start,x_end,bins,
   ## This function optimizes the kernel bandwidth for the KDE by a minimizing 
   ## the euclidean distance on a grid of given values. In can be further 
   ## enchanted easily, but this is a basic first prototype.
-  h_seq <- seq(1e-5, 10, by=0.1)
+  h_seq = seq(1e-5, 10, by=0.1)
   dist_matrix = as.vector(matrix(1,nrow=length(h_seq)))
-  x_in <- seq(x_start, x_end, length.out=length)
+  x_in = seq(x_start, x_end, length.out=length)
   
-  if(data_den=='norm')      {y_out <- dnorm(x_in, mean=hyp_mean, sd=hyp_sd)}
-  else if(data_den=='gamma'){y_out <- dgamma(x_in, shape=hyp_shape, rate=hyp_rate)}
-  else                      {y_out <- mixing*dnorm (x_in, mean=hyp_mean, sd=hyp_sd) + 
+  if(data_den=='norm')      {y_out = dnorm(x_in, mean=hyp_mean, sd=hyp_sd)}
+  else if(data_den=='gamma'){y_out = dgamma(x_in, shape=hyp_shape, rate=hyp_rate)}
+  else                      {y_out = mixing*dnorm (x_in, mean=hyp_mean, sd=hyp_sd) + 
                                       (1-mixing)*dgamma(x_in, shape=hyp_shape, rate=hyp_rate)}
   
   for(i in 1:length(h_seq)){
@@ -135,8 +134,8 @@ scaler=0.6
 jpeg("./images/hist_vs_GKDE.jpg", width=4096*scaler, height=2160*scaler)
 par(mfrow=c(2,3))
 font = 2.2
-x <- seq(-5, 5, length.out=n_small)
-y <- dnorm(x, mean=hyp_norm_mean, sd=hyp_norm_sd)
+x = seq(-5, 5, length.out=n_small)
+y = dnorm(x, mean=hyp_norm_mean, sd=hyp_norm_sd)
 hist(y_small_uni_normal,
      col='skyblue3',
      breaks=hyp_bins_small,
@@ -156,8 +155,8 @@ lines(x,y,
       lwd=2)
 rug(y_small_uni_normal)
 
-x <- seq(-2, 15, length.out=n_small)
-y <- dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
+x = seq(-2, 15, length.out=n_small)
+y = dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_small_uni_gamma,
      col='skyblue3',
      breaks=hyp_bins_small,
@@ -177,8 +176,8 @@ lines(x,y,
       lwd=2)
 rug(y_small_uni_gamma)
 
-x <- seq(-5, 15, length.out=n_small)
-y <-  hyp_mixing      *dnorm (x, mean=hyp_norm_mean   , sd=hyp_norm_sd     ) +
+x = seq(-5, 15, length.out=n_small)
+y =  hyp_mixing      *dnorm (x, mean=hyp_norm_mean   , sd=hyp_norm_sd     ) +
       (1- hyp_mixing )*dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_small_multi_norm_gamma,
      col='skyblue3',
@@ -206,8 +205,8 @@ rug(y_small_multi_norm_gamma)
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-x <- seq(-5, 5, length.out=n_large)
-y <- dnorm(x, mean=hyp_norm_mean, sd=hyp_norm_sd)
+x = seq(-5, 5, length.out=n_large)
+y = dnorm(x, mean=hyp_norm_mean, sd=hyp_norm_sd)
 hist(y_large_uni_normal,
      col='darkolivegreen',
      breaks=hyp_bins_large,
@@ -226,8 +225,8 @@ lines(kde_large_uni_normal,
 lines(x,y,
       lwd=2)
 
-x <- seq(-2, 15, length.out=n_large)
-y <- dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
+x = seq(-2, 15, length.out=n_large)
+y = dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_large_uni_gamma,
      col='darkolivegreen',
      breaks=hyp_bins_large,
@@ -246,8 +245,8 @@ lines(kde_large_uni_gamma,
 lines(x,y,
       lwd=2)
 
-x <- seq(-4, 15, length.out=n_large)
-y <-  hyp_mixing      *dnorm (x, mean=hyp_norm_mean   , sd=hyp_norm_sd     ) +
+x = seq(-4, 15, length.out=n_large)
+y =  hyp_mixing      *dnorm (x, mean=hyp_norm_mean   , sd=hyp_norm_sd     ) +
       (1- hyp_mixing )*dgamma(x, shape=hyp_gamma_shape, rate=hyp_gamma_rate)
 hist(y_large_multi_norm_gamma,
      col='darkolivegreen',
@@ -281,4 +280,39 @@ cat("\n###Script executed successfully!###")
 
 ```{r MCMC}
 
+set.seed(1903)
+n_1             = 15
+R               = 1000
+hyp_mixing      = 0.5
+hyp_norm_mean   = 0
+hyp_norm_sd     = 1
+hyp_gamma_shape = 5
+hyp_gamma_rate  = 1
+
+y_uni_normal = matrix(NA, R, n) 
+mu_norm = numeric(R) 
+med = numeric(R)
+U = runif(n_1)
+
+# MCMC
+for(r in 1:R){
+  y_uni_normal[r, ] = rnorm (n_1,mean=hyp_norm_mean,sd=hyp_norm_sd)
+  #y_uni_gamma[r, ]  = rgamma(n_1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)
+  #y_multi_norm_gamma[r, ] = rep(NA, n_1)
+  #for(i in 1:n_1){
+  #  if(U[i]<hyp_mixing){y_multi_norm_gamma[i]=rnorm (1,mean=hyp_norm_mean,sd=hyp_norm_sd)}
+  #  else               {y_multi_norm_gamma[i]=rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
+  #}
+  
+  mu_norm[r] = mean(y_uni_normal[r, ])
+  #mu_gamma[r] = mean(y_uni_gamma[r, ])
+  #mu_mix[r] = mean(y_multi_norm_gamma[r, ])
+}
+
+MCMC_mu_norm  = mean(mu_norm)
+#MCMC_mu_gamma = mean(mu_gamma)
+#MCMC_mu_mix   = mean(mu_mix)
+MCMC_mu_norm
+#MCMC_mu_gamma
+#MCMC_mu_mix
 ```
