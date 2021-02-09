@@ -6,12 +6,13 @@ output: html_document
 
 ```{r setup, include=FALSE}
 require(kdensity)
+require(stats)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-
-```{r KDE vs Histogram}
+```{r huperparameters}
 # Requirements and hyperparameters:
+
 set.seed(1903)
 n_small = 200
 n_large = 1e6
@@ -26,7 +27,9 @@ hyp_gamma_shape = 5
 hyp_gamma_rate  = 1
 hyp_mixing      = 0.5
 hyp_ban         = 'nrd0'
+```
 
+```{r helper functions}
 set_kde = function(data,data_den,length,x_start,x_end,bins,
                     hyp_mean=hyp_norm_mean,
                     hyp_sd=hyp_norm_sd,
@@ -65,8 +68,9 @@ set_kde = function(data,data_den,length,x_start,x_end,bins,
   }
   return(kde_den)
 }
+```
 
-
+```{r KDE vs Histogram}
 # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # Generate the unimodal data
 y_small_uni_normal  = rnorm (n_small,
@@ -279,9 +283,7 @@ cat("\n###Script executed successfully!###")
 ```
 
 ```{r MCMC}
-
-set.seed(1903)
-n_1             = 15
+n_1             = 250
 R               = 1000
 hyp_mixing      = 0.5
 hyp_norm_mean   = 0
@@ -289,30 +291,36 @@ hyp_norm_sd     = 1
 hyp_gamma_shape = 5
 hyp_gamma_rate  = 1
 
-y_uni_normal = matrix(NA, R, n) 
-mu_norm = numeric(R) 
-med = numeric(R)
+y_uni_normal = matrix(NA, R, n_1) 
+mu_norm = numeric(R)
 U = runif(n_1)
 
 # MCMC
 for(r in 1:R){
   y_uni_normal[r, ] = rnorm (n_1,mean=hyp_norm_mean,sd=hyp_norm_sd)
-  #y_uni_gamma[r, ]  = rgamma(n_1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)
-  #y_multi_norm_gamma[r, ] = rep(NA, n_1)
-  #for(i in 1:n_1){
-  #  if(U[i]<hyp_mixing){y_multi_norm_gamma[i]=rnorm (1,mean=hyp_norm_mean,sd=hyp_norm_sd)}
-  #  else               {y_multi_norm_gamma[i]=rgamma(1,shape=hyp_gamma_shape,rate=hyp_gamma_rate)}
-  #}
-  
   mu_norm[r] = mean(y_uni_normal[r, ])
-  #mu_gamma[r] = mean(y_uni_gamma[r, ])
-  #mu_mix[r] = mean(y_multi_norm_gamma[r, ])
 }
+MCMC_uni_nor = colMeans(y_uni_normal) 
+MCMC_kde_uni_norm = density(MCMC_uni_nor, n=n_1)
+# https://stats.stackexchange.com/questions/390777/how-to-compute-integrated-squared-error-for-kernel-density-estimation-in-r
+# Create approx func obj and integrate()
+MCMC_uni_norm_error = splinefun(MCMC_kde_uni_norm$x, (MCMC_kde_uni_norm$y - dnorm(MCMC_kde_uni_norm$x))^2)
+ISE_uni_norm = integrate(MCMC_uni_norm_error, lower = min(MCMC_uni_nor), upper = max(MCMC_uni_nor))
+ISE_uni_norm
+```
 
-MCMC_mu_norm  = mean(mu_norm)
-#MCMC_mu_gamma = mean(mu_gamma)
-#MCMC_mu_mix   = mean(mu_mix)
-MCMC_mu_norm
-#MCMC_mu_gamma
-#MCMC_mu_mix
+
+
+
+```{r stackoverflow code}
+set.seed(1)
+x1 = rnorm(250) 
+#Computing of bandwidth
+h1 = bw.ucv(x1)
+#Estimate
+est = density(x1,kernel = "gaussian",bw = h1)
+
+# Create approx func obj and integrate()
+splxy = splinefun(est$x, (est$y - dnorm(est$x))^2)
+integrate(splxy, lower = min(x1), upper = max(x1)) # res 0.0006681713
 ```
