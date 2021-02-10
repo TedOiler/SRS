@@ -477,7 +477,31 @@ round(resutl_normal_gamma_500 ,3)
 round(resutl_normal_gamma_1e3 ,3)
 
 ```
+```{r MCMC diagram}
+plot(n,results[,1], type="o", col="blue", pch="o", lty=1)
+points(n,results[,2], col="red", pch="*")
+lines(n,results[,2], col="red",lty=2)
 
+abline(v=250, col='red4', lwd=2.5)
+abline(v=500, col='green4', lwd=2.5)
+abline(v=1000, col='blue4', lwd=2.5)
+text(x=250,
+     y=resutl_normal_250,
+     c(round(resutl_normal_250,2)),
+     adj = c(0,0),
+     cex=2)
+text(x=500,
+     y=resutl_normal_500,
+     c(round(resutl_normal_1e3,2)),
+     adj = c(0,0),
+     cex=2)
+text(x=1000,
+     y=resutl_normal_1e3,
+     c(round(resutl_normal_1e3,2)),
+     pos=2,
+     cex=2)
+
+```
 ```{r stackoverflow code}
 set.seed(1)
 x1 = rnorm(250) 
@@ -501,4 +525,36 @@ text(4, 9, expression(hat(beta) == (X^t * X)^{-1} * X^t * y))
 text(4, 8.4, "expression(hat(beta) == (X^t * X)^{-1} * X^t * y)",
      cex = .75)
 text(4, 7, expression(bar(x) == sum(frac(x[i], n), i==1, n)))
+
+
+# define 3 data sets
+ xdata <- n
+ y1 <- results[,1]
+ y2 <- results[,2]
+ y3 <- results[,3]
+ plot(xdata, y1, type="o", col="blue", pch="o", lty=1, ylim=c(0,9) )
+ points(xdata, y2, col="red", pch="*")
+ lines(xdata, y2, col="red",lty=2)
+ points(xdata, y3, col="dark red",pch="+")
+ lines(xdata, y3, col="dark red", lty=3)
+ 
+ 
+ library(latticeExtra)
+ 
+# create data
+
+x <- n
+var1 <- results[,1]
+var2 <- results[,2]
+var3 <- results[,3]
+data <- data.frame(x,var1,var2,var3)
+ 
+ 
+# --> construct separate plots for each series
+obj1 <- xyplot(var1 ~ x, data, type = "l" , lwd=2, col="steelblue")
+obj2 <- xyplot(var2 ~ x, data, type = "l", lwd=2, col="#69b3a2")
+obj3 <- xyplot(var3 ~ x, data, type = "l", lwd=2, col="#69b3a2")
+ 
+# --> Make the plot with second y axis:
+doubleYScale(obj1, obj2, add.ylab2 = TRUE, use.style=FALSE )
 ```

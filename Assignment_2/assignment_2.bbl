@@ -1,5 +1,10 @@
 \begin{thebibliography}{1}
 
+\bibitem{arno_data_2020}
+Michael Gutmann and Arno Onken.
+\newblock Data {Mining} and {Exploration} {Class} {Notes}.
+\newblock {\em INFR11007}, University of Edinburgh.
+
 \bibitem{kang2018kernel}
 Young-Jin Kang, Yoojeong Noh, and O-Kaung Lim.
 \newblock Kernel density estimation with bounded data.
