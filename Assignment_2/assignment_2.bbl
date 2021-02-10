@@ -1,0 +1,14 @@
+\begin{thebibliography}{1}
+
+\bibitem{kang2018kernel}
+Young-Jin Kang, Yoojeong Noh, and O-Kaung Lim.
+\newblock Kernel density estimation with bounded data.
+\newblock {\em Structural and Multidisciplinary Optimization}, 57(1):95--113,
+  2018.
+
+\bibitem{murray_machine_2020}
+Ian Murray and Arno Onken.
+\newblock Machine {Learning} and {Pattern} {Recognition} {Class} {Notes}.
+\newblock {\em INFR11130}, University of Edinburgh.
+
+\end{thebibliography}
