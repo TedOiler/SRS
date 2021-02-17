@@ -17,8 +17,7 @@
 \usepackage{booktabs} % For prettier tables
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
-
-\usepackage[a4paper,top=2cm,bottom=2cm,left=1cm,right=1cm,marginparwidth=1.75cm]{geometry}
+\usepackage[a4paper,top=1.5cm,bottom=2cm,left=1cm,right=1cm,marginparwidth=1.75cm]{geometry}
 
 %\graphicspath{ {./images} }
 \title{Assignment 2 - Simulation Experiment}
@@ -104,7 +103,7 @@ In \textit{Figure 2} we can see the same error as in the above table, but sample
 \section*{3. Conclusion}
 We have seen that both KDE and the histogram method, are a pretty good approximation of a true distribution when the number of samples is sufficiently large. For small samples, the histogram fails to capture the true PDF, but has a major advantage over the KDE, that it's impossible for the histogram to put mass on impossible values in the case of a bounded domain. Lastly, further work needs to be conducted to quantify the MISE of the KDE and the true PDF, for the Normal-Gamma mixture model as it seems that $n=2000$ is not sufficiently large.
 
-The code for the above experiment can be found on my \href{https://github.com/TedOiler/SRS/tree/master/Assignment_2}{\faGithub} page. This repository is a private one, that I will make public after the assignment deadline and turn private again when the assignment is graded.
+The code for the above experiment can be found on my \href{https://github.com/TedOiler/SRS/tree/master/Assignment_2}{\faGithub} page (\url{github.com/TedOiler/SRS/tree/master/Assignment_2}). This repository is a private one, that I will make public after the assignment deadline and turn private again when the assignment is graded.
 
 \bibliographystyle{plain}
 \bibliography{assignment_2_references.bib}
